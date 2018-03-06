@@ -14,17 +14,21 @@ var (
 const (
 	TAB = "    " // tabs == 4 spaces :)
 
-	BRAINFUCK_TOKEN_PLUS   = '+'
-	BRAINFUCK_TOKEN_PLUS_C = "++*ptr;"
+	BRAINFUCK_TOKEN_PLUS        = '+'
+	BRAINFUCK_TOKEN_PLUS_C      = "++*ptr;"
+	BRAINFUCK_TOKEN_PLUS_C_MORE = "*ptr += %d;"
 
-	BRAINFUCK_TOKEN_MINUS   = '-'
-	BRAINFUCK_TOKEN_MINUS_C = "--*ptr;"
+	BRAINFUCK_TOKEN_MINUS        = '-'
+	BRAINFUCK_TOKEN_MINUS_C      = "--*ptr;"
+	BRAINFUCK_TOKEN_MINUS_C_MORE = "*ptr -= %d;"
 
-	BRAINFUCK_TOKEN_PREVIOUS   = '<'
-	BRAINFUCK_TOKEN_PREVIOUS_C = "++ptr;"
+	BRAINFUCK_TOKEN_PREVIOUS        = '<'
+	BRAINFUCK_TOKEN_PREVIOUS_C      = "++ptr;"
+	BRAINFUCK_TOKEN_PREVIOUS_C_MORE = "ptr += %d;"
 
-	BRAINFUCK_TOKEN_NEXT   = '>'
-	BRAINFUCK_TOKEN_NEXT_C = "--ptr;"
+	BRAINFUCK_TOKEN_NEXT        = '>'
+	BRAINFUCK_TOKEN_NEXT_C      = "--ptr;"
+	BRAINFUCK_TOKEN_NEXT_C_MORE = "ptr -= %d;"
 
 	BRAINFUCK_TOKEN_OUTPUT   = '.'
 	BRAINFUCK_TOKEN_OUTPUT_C = "putchar(*ptr);"
@@ -86,13 +90,29 @@ func main() {
 		// check for instructions
 		switch c[0] {
 		case BRAINFUCK_TOKEN_PLUS:
-			_writeln(BRAINFUCK_TOKEN_PLUS_C, indent, out_fd)
+			if n := count_instructions(c, fd); n > 1 {
+				_writeln(fmt.Sprintf(BRAINFUCK_TOKEN_PLUS_C_MORE, n), indent, out_fd)
+			} else {
+				_writeln(BRAINFUCK_TOKEN_PLUS_C, indent, out_fd)
+			}
 		case BRAINFUCK_TOKEN_MINUS:
-			_writeln(BRAINFUCK_TOKEN_MINUS_C, indent, out_fd)
+			if n := count_instructions(c, fd); n > 1 {
+				_writeln(fmt.Sprintf(BRAINFUCK_TOKEN_MINUS_C_MORE, n), indent, out_fd)
+			} else {
+				_writeln(BRAINFUCK_TOKEN_MINUS_C, indent, out_fd)
+			}
 		case BRAINFUCK_TOKEN_PREVIOUS:
-			_writeln(BRAINFUCK_TOKEN_PREVIOUS_C, indent, out_fd)
+			if n := count_instructions(c, fd); n > 1 {
+				_writeln(fmt.Sprintf(BRAINFUCK_TOKEN_PREVIOUS_C_MORE, n), indent, out_fd)
+			} else {
+				_writeln(BRAINFUCK_TOKEN_PREVIOUS_C, indent, out_fd)
+			}
 		case BRAINFUCK_TOKEN_NEXT:
-			_writeln(BRAINFUCK_TOKEN_NEXT_C, indent, out_fd)
+			if n := count_instructions(c, fd); n > 1 {
+				_writeln(fmt.Sprintf(BRAINFUCK_TOKEN_NEXT_C_MORE, n), indent, out_fd)
+			} else {
+				_writeln(BRAINFUCK_TOKEN_NEXT_C, indent, out_fd)
+			}
 		case BRAINFUCK_TOKEN_OUTPUT:
 			_writeln(BRAINFUCK_TOKEN_OUTPUT_C, indent, out_fd)
 		case BRAINFUCK_TOKEN_INPUT:
@@ -112,6 +132,27 @@ func main() {
 	_writeln("}\n", 0, out_fd)
 	fmt.Printf("Success: %s\n", out)
 bail:
+}
+
+func count_instructions(i []byte, f *os.File) int {
+	var (
+		ret         int = 1
+		current_pos int64
+		err         error
+	)
+	ch := make([]byte, 1)
+	current_pos, _ = f.Seek(0, io.SeekCurrent)
+
+	for err != io.EOF {
+		_, err = f.Read(ch)
+		if ch[0] != i[0] {
+			break
+		}
+		ret++
+		current_pos++
+	}
+	_, _ = f.Seek(current_pos, io.SeekStart)
+	return ret
 }
 
 func _writeln(c string, in int, f *os.File) {
