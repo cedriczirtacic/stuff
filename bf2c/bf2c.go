@@ -1,18 +1,16 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"io"
 	"os"
 	"strings"
 )
 
-var (
-	filename string
-)
-
 const (
-	TAB = "    " // tabs == 4 spaces :)
+	TAPE_SIZE = "3000" // default tape size equals 3000 bytes
+	TAB       = "    " // tabs == 4 spaces :)
 
 	BRAINFUCK_TOKEN_PLUS        = '+'
 	BRAINFUCK_TOKEN_PLUS_C      = "++*ptr;"
@@ -43,13 +41,26 @@ const (
 	BRAINFUCK_TOKEN_LOOP_END_C = "}"
 )
 
+var (
+	filename  string
+	tape_size string
+)
+
 func init() {
-	if len(os.Args) != 2 {
-		fmt.Fprintf(os.Stderr, "Usage: %s <bf_file>\n", os.Args[0])
+	flag.StringVar(&tape_size, "t", TAPE_SIZE, "Tape size (in bytes)")
+	help := func() {
+		fmt.Fprintf(os.Stderr, "Usage: %s [-t tape_size] <bf_file>\n", os.Args[0])
+		flag.PrintDefaults()
 		os.Exit(1)
 	}
+	flag.Usage = help
 
-	filename = os.Args[1]
+	if len(os.Args) < 2 {
+		help()
+	}
+	flag.Parse()
+
+	filename = flag.Args()[0]
 }
 
 func main() {
@@ -78,7 +89,7 @@ func main() {
 	}
 	defer out_fd.Close()
 
-	_writeln("int main() {\n" + TAB + "char c[3000];\n" + TAB + "char *ptr = c;\n", 0, out_fd)
+	_writeln("int main() {\n"+TAB+"char c["+tape_size+"];\n"+TAB+"char *ptr = c;\n", 0, out_fd)
 	c := make([]byte, 1)
 	for err != io.EOF {
 		_, err = fd.Read(c)
