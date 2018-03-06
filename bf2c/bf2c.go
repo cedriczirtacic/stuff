@@ -78,7 +78,7 @@ func main() {
 	}
 	defer out_fd.Close()
 
-	_writeln("int main() {\n\tchar c[3000];\n\tchar *ptr = c;\n", 0, out_fd)
+	_writeln("int main() {\n" + TAB + "char c[3000];\n" + TAB + "char *ptr = c;\n", 0, out_fd)
 	c := make([]byte, 1)
 	for err != io.EOF {
 		_, err = fd.Read(c)
@@ -158,7 +158,7 @@ func count_instructions(i []byte, f *os.File) int {
 func _writeln(c string, in int, f *os.File) {
 	// indentation
 	if in > 0 {
-		for i := 0; i <= in; i++ {
+		for i := 0; i < in; i++ {
 			fmt.Fprintf(f, TAB)
 		}
 	}
