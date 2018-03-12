@@ -95,7 +95,7 @@ int main() {
             {
                 continue;
             }
-            CFShow(window);
+            //CFShow(window);
 
             sleep(1);
             for (CFIndex j = 0, cmd_len = CFStringGetLength(cmd); j < cmd_len; j++) {
