@@ -30,6 +30,7 @@ id
 root# id
 uid=0(root) gid=0(wheel) groups=0(wheel)
 ```
-
+## todo
+fix some keycodes on function char_to_code()
 ### idea
 based on (this code)[https://github.com/CoolerVoid/rootstealer]
