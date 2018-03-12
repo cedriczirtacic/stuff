@@ -1,8 +1,6 @@
 #include <Carbon/Carbon.h>
+#define WAIT 3 // wait some seconds until enter main loop
 #define EXEC_WHEN_FOCUSED
-
-// command to be executed
-CFStringRef cmd = CFSTR("id");
 
 void send_key(CGKeyCode code) {
     CGEventRef event_down = CGEventCreateKeyboardEvent(NULL, code, true);
@@ -16,7 +14,7 @@ void send_key(CGKeyCode code) {
 }
 
 CGKeyCode char_to_code (UniChar c) {
-    int ret;
+    char ret = 0xff;
 
     if (c == 'a') ret = 0x00;
     if (c == 's') ret = 0x01;
@@ -66,10 +64,20 @@ CGKeyCode char_to_code (UniChar c) {
     if (c == '.') ret = 0x2f;
     if (c == ' ') ret = 0x31;
 
+    if(!(char)(ret^0xff))
+        ret = 0x31; // unknown == SPACE
+
     return (CGKeyCode)ret;
 }
 
 int main() {
+    // command to be executed
+    const char *cmd_env = getenv("INJ");
+    if (cmd_env == NULL)
+        return 0;
+
+    CFStringRef cmd = CFStringCreateWithCString(NULL, cmd_env, kCFStringEncodingUTF8);
+    sleep(WAIT);
     while (1){
         CFArrayRef window_list = CGWindowListCopyWindowInfo(kCGWindowListOptionOnScreenOnly, kCGNullWindowID);
         
