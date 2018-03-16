@@ -1,0 +1,34 @@
+--- openssh-7.6p1/ssh-keygen.c.old	2018-03-16 10:01:57.556020227 -0600
++++ openssh-7.6p1/ssh-keygen.c	2018-03-16 10:07:06.779855031 -0600
+@@ -2802,21 +2802,24 @@
+ 		passphrase1 = xstrdup(identity_new_passphrase);
+ 	else {
+ passphrase_again:
+-		passphrase1 =
+-			read_passphrase("Enter passphrase (empty for no "
+-			    "passphrase): ", RP_ALLOW_STDIN);
++		passphrase1 = read_passphrase("Enter passphrase: ",
++		    RP_ALLOW_STDIN);
+ 		passphrase2 = read_passphrase("Enter same passphrase again: ",
+ 		    RP_ALLOW_STDIN);
+-		if (strcmp(passphrase1, passphrase2) != 0) {
++		int phrase_len = strlen(passphrase1);
++		if (strcmp(passphrase1, passphrase2) != 0 || phrase_len == 0) {
+ 			/*
+-			 * The passphrases do not match.  Clear them and
+-			 * retry.
++			 * The passphrases do not match or empty.  Clear them
++			 * and retry.
+ 			 */
+ 			explicit_bzero(passphrase1, strlen(passphrase1));
+ 			explicit_bzero(passphrase2, strlen(passphrase2));
+ 			free(passphrase1);
+ 			free(passphrase2);
+-			printf("Passphrases do not match.  Try again.\n");
++			if (phrase_len == 0)
++				printf("Empty passphrase.  Try again.\n");
++			else
++				printf("Passphrases do not match.  Try again.\n");
+ 			goto passphrase_again;
+ 		}
+ 		/* Clear the other copy of the passphrase. */
