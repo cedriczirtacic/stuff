@@ -19,7 +19,6 @@ int main() {
         pid_t pid = -1;
         char stack[1024*1024];
         void *stack_ptr = (stack + sizeof(stack));
-        /* 
         chroot("/proc/self/fdinfo");
         chdir("/");
         if ((pid = clone(ls, stack_ptr, CLONE_FS, 0)) == -1)
