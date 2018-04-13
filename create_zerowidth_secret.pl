@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-#
+# based on github.com/vedhavyas/zwfp/blob/master/embed.go
 use strict;
 use warnings;
 use utf8;
