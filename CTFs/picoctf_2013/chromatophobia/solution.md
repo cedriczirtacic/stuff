@@ -1,5 +1,4 @@
 ## Solution
-First, find out who's the server:
 ```bash
 $ zsteg -a steg.png
 meta date:create    .. text: "2013-01-17T17:35:32-05:00"
