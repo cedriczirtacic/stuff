@@ -15,7 +15,7 @@ $ tshark -Q -r deadly_arthropod.pcap -Tfields -e usb.capdata -Y 'usb.capdata'|pe
 ```
 
 Then start parsing the content:
-````bash
+```bash
 $ gcc -o keys keys.c
 $ ./keys data.bin
 eks@hackthebox.eu
