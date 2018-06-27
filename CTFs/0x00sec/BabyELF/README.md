@@ -1,5 +1,5 @@
 ## Info
-This was a small CrackMe from 0x00sec.org by (calchemist)[https://0x00sec.org/u/calchemist].
+This was a small CrackMe from 0x00sec.org by [calchemist](https://0x00sec.org/u/calchemist).
 
 LIEF needed in order to parse the ELF64.
 
